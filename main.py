@@ -1,18 +1,17 @@
+#!/usr/bin/env python3
+
 import sys
 import os
 
 if len(sys.argv) < 3:
-    print("Please input a file and string to search!")
-    print("Usage: python3 main.py [file to search in] [string to search]")
-    sys.exit()
+    sys.exit(F"Please input a file and string to search!\nUsage: {sys.argv[0]} [file to search in] [string to search]")
 
-if not os.path.isfile(sys.argv[1]):
-    print("That file doesn't exist")
-    sys.exit()
+try:
+    query = " ".join(sys.argv[2:])
 
-file = open(sys.argv[1])
-query = " ".join(sys.argv[2:])
-
-for line in file:
-    if query in line:
-        print(line)
+    with open(sys.argv[1]) as file:
+        for i, line in enumerate(file):
+            if query in line:
+                print(F"Line {i + 1}: {line}")
+except:
+    sys.exit(F"Error trying to open {sys.argv[1]}")
