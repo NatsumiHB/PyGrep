@@ -12,6 +12,6 @@ try:
     with open(sys.argv[1]) as file:
         for i, line in enumerate(file):
             if query in line:
-                print(F"Line {i + 1}: {line}")
+                print(f"Line {i + 1}: {line}")
 except:
-    sys.exit(F"Error trying to open {sys.argv[1]}")
+    sys.exit(f"Error trying to open {sys.argv[1]}")
