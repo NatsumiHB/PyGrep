@@ -13,9 +13,22 @@ ap.add_argument("-f", "--files", required=True, help="The files or folders", nar
 search_args = ap.add_mutually_exclusive_group(required=True)
 search_args.add_argument("-q", "--query", help="Search query")
 search_args.add_argument("-r", "--regex", help="Regular expression")
-search_args.add_argument("-b", "--between", help="Provide two string and the text inbetween will be outputted", nargs='+')
+search_args.add_argument("-b", "--between", help="Provide two string and the text inbetween will be outputted", nargs=2)
 
 args = vars(ap.parse_args())
+
+def main():
+    for file_name in args["files"]:
+        # Remove trailing directory indicator
+        if file_name.startswith("./") or file_name.startswith(".\\"):
+            file_name = file_name[2:]
+
+        # Check if the current file is a file or directory and act accordingly
+        if os.path.isfile(file_name):
+            search_in_file(file_name)
+        elif os.path.isdir(file_name):
+            for curr_file_name in os.listdir(file_name):
+                search_in_file(file_name + "/" + curr_file_name)
 
 def search_in_file(file_name):
     # Check if we should use the between one
@@ -32,9 +45,6 @@ def search_in_file(file_name):
                     print(f"[{file_name}] Line {i + 1}: {', '.join(matches)}")
     # If between is given
     elif args["between"] != None:
-        if len(args["between"]) != 2:
-            sys.exit("Please specify two strings to search between.")
-
         # Open the file and print in between text
         with open(file_name) as file:
             file_content = file.read().replace('\n', '')
@@ -42,14 +52,5 @@ def search_in_file(file_name):
             for match in matches:
                 print(f"[{file_name}] {match}")
 
-for file_name in args["files"]:
-    # Remove trailing directory indicator
-    if file_name.startswith("./") or file_name.startswith(".\\"):
-        file_name = file_name[2:]
-
-    # Check if the current file is a file or directory and act accordingly
-    if os.path.isfile(file_name):
-        search_in_file(file_name)
-    elif os.path.isdir(file_name):
-        for curr_file_name in os.listdir(file_name):
-            search_in_file(file_name + "/" + curr_file_name)
+if __name__ == "__main__":
+    main()
