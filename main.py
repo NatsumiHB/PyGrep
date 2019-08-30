@@ -4,7 +4,7 @@ import sys
 import os
 
 if len(sys.argv) < 3:
-    sys.exit(F"Please input a file and string to search!\nUsage: {sys.argv[0]} [file to search in] [string to search]")
+    sys.exit(f"Please input a file and string to search!\nUsage: {sys.argv[0]} [file to search in] [string to search]")
 
 try:
     query = " ".join(sys.argv[2:])
