@@ -1,16 +1,53 @@
 #!/usr/bin/env python3
 
 import sys
+import argparse
 import os
+import re
 
-if len(sys.argv) < 3:
-    sys.exit(f"Please input a file and string to search!\nUsage: {sys.argv[0]} \"[string to search]\" [files (whitespace separated)]")
+ap = argparse.ArgumentParser()
+ap.add_argument("-q", "--query", required=False, help="Search query", nargs='+')
+ap.add_argument("-r", "--regex", required=False, help="Regular expression")
+ap.add_argument("-f", "--files", required=True, help="The files or folders", nargs='+')
+ap.add_argument("-b", "--between", required=False, help="Provide two string and the text inbetween will be outputted", nargs='+')
+args = vars(ap.parse_args())
 
-try:
-    for file_name in sys.argv[2:]:
+if args["query"] == None and args["regex"] == None and args["between"] == None:
+    sys.exit("Please specify either a regular expression, a normal string query or between arguments.")
+
+def search_in_file(file_name):
+    # Check if we should use the between one
+    if args["between"] == None:    
         with open(file_name) as file:
+            # Loop over each line
             for i, line in enumerate(file):
-                if sys.argv[1] in line:
-                    print(f"[{file_name}] Line {i + 1}: {line}")
-except:
-    sys.exit(f"Error trying to open {sys.argv[1]}")
+                # Check if a normal string query or regex should be used and print the results
+                if args["query"] != None:
+                    if args["query"] in line:
+                        print(f"[{file_name}] Line {i + 1}: {line}")
+                elif args["regex"] != None:
+                    matches = re.findall(args["regex"], line)
+                    print(f"[{file_name}] Line {i + 1}: {', '.join(matches)}")
+    # If between is given
+    elif args["between"] != None:
+        if len(args["between"]) != 2:
+            sys.exit("Please specify two strings to search between.")
+
+        # Open the file and print in between text
+        with open(file_name) as file:
+            file_content = file.read().replace('\n', '')
+            matches = re.findall(args["between"][0] + "(.+?)" + args["between"][1], file_content)
+            for match in matches:
+                print(f"[{file_name}] {match}")
+
+for file_name in args["files"]:
+    # Remove trailing directory indicator
+    if file_name.startswith("./") or file_name.startswith(".\\"):
+        file_name = file_name[2:]
+
+    # Check if the current file is a file or directory and act accordingly
+    if os.path.isfile(file_name):
+        search_in_file(file_name)
+    elif os.path.isdir(file_name):
+        for curr_file_name in os.listdir(file_name):
+            search_in_file(file_name + "/" + curr_file_name)
