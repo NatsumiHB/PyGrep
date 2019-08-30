@@ -5,15 +5,17 @@ import argparse
 import os
 import re
 
+# Init arg parser
 ap = argparse.ArgumentParser()
-ap.add_argument("-q", "--query", required=False, help="Search query", nargs='+')
-ap.add_argument("-r", "--regex", required=False, help="Regular expression")
 ap.add_argument("-f", "--files", required=True, help="The files or folders", nargs='+')
-ap.add_argument("-b", "--between", required=False, help="Provide two string and the text inbetween will be outputted", nargs='+')
-args = vars(ap.parse_args())
 
-if args["query"] == None and args["regex"] == None and args["between"] == None:
-    sys.exit("Please specify either a regular expression, a normal string query or between arguments.")
+# Add search args
+search_args = ap.add_mutually_exclusive_group(required=True)
+search_args.add_argument("-q", "--query", help="Search query")
+search_args.add_argument("-r", "--regex", help="Regular expression")
+search_args.add_argument("-b", "--between", help="Provide two string and the text inbetween will be outputted", nargs='+')
+
+args = vars(ap.parse_args())
 
 def search_in_file(file_name):
     # Check if we should use the between one
